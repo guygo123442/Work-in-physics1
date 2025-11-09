@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>🚀 חללית במערכת השמש — מותאם מובייל + תיקוני באגים</title>
+  <style>
+    :root {
+      --bg: #02040a;
+      --ui: #0d131a;
+      --ui2: #141c25;
+      --acc: #2bd1ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: #e5eef7; font-family: system-ui; overflow: hidden; }
+
+    .app { display: grid; grid-template-columns: 300px 1fr; height: 100vh; }
+    aside { background: linear-gradient(180deg, var(--ui), var(--ui2)); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .title { font-size: 22px; font-weight: 700; text-align: center; }
+    .controls { display: flex; justify-content: space-around; gap: 8px; }
+    .btn { background: #0f1620; border: 1px solid #1e2a36; border-radius: 12px; padding: 10px 14px; color: #eaf6ff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .btn:hover { border-color: #2e96d0; }
+
+    .card { background: #0c1117; border: 1px solid #16212c; border-radius: 16px; padding: 14px; overflow-y: auto; flex-grow: 1; }
+    .card h3 { margin: 0 0 8px 0; }
+    .info-text { font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+
+    .universe-wrap { position: relative; overflow: hidden; background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.08), transparent 60%), var(--bg); display: flex; align-items: center; justify-content: center; }
+    .universe { display: flex; align-items: center; justify-content: center; gap: 60px; flex-direction: row-reverse; transform-origin: center; flex-wrap: nowrap; will-change: transform; }
+
+    .body { position: relative; border-radius: 50%; cursor: pointer; outline: 0; box-shadow: inset 0 0 10px rgba(0,0,0,.25), 0 0 24px rgba(255,255,255,.15); }
+    .body:focus-visible { outline: 2px solid var(--acc); }
+    .body .label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 6px; font-size: 12px; color: #fff; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+
+    /* ☀️ השמש */
+    .sun { width: 180px; height: 180px; background:
+        radial-gradient(circle at 48% 44%, rgba(255,255,255,.55), transparent 38%),
+        repeating-radial-gradient(circle at 52% 56%, rgba(255,220,90,.35) 0 6px, rgba(255,160,0,.28) 6px 12px, rgba(255,110,0,.22) 12px 18px),
+        radial-gradient(circle, #fff6b0 0%, #ffcc00 45%, #ff9b00 70%, #ff7a00 100%);
+      box-shadow: 0 0 100px #ffb300, 0 0 200px rgba(255,200,80,.4);
+    }
+
+    /* ☿️ מרקורי */
+    .mercury { width: 28px; height: 28px; background:
+        radial-gradient(circle at 30% 35%, rgba(0,0,0,.25), transparent 30%),
+        radial-gradient(circle at 70% 65%, rgba(0,0,0,.20), transparent 28%),
+        radial-gradient(circle at 55% 20%, rgba(255,255,255,.18), transparent 30%),
+        radial-gradient(circle, #bdbdbd, #7c7c7c 70%);
+      box-shadow: inset -4px -6px 10px rgba(0,0,0,.25), 0 0 18px rgba(200,200,200,.35);
+    }
+
+    /* ♀️ נוגה */
+    .venus { width: 50px; height: 50px; background:
+        conic-gradient(from 20deg, rgba(255,230,170,.35), rgba(210,170,120,.2) 25%, rgba(255,230,170,.35) 60%, rgba(200,160,110,.25) 100%),
+        radial-gradient(circle, #ffe6b0 0%, #d9b38c 75%);
+      box-shadow: inset -8px -10px 16px rgba(120,90,50,.35), 0 0 26px rgba(210,167,106,.45);
+      filter: saturate(1.05);
+    }
+
+    /* 🌍 כדור הארץ */
+    .earth { width: 56px; height: 56px; background:
+        radial-gradient(ellipse at 65% 30%, rgba(255,255,255,.55), transparent 45%),
+        radial-gradient(ellipse at 30% 60%, rgba(255,255,255,.35), transparent 40%),
+        radial-gradient(circle at 40% 58%, rgba(41,158,87,.95), transparent 30%),
+        radial-gradient(circle at 52% 62%, rgba(28,121,64,.9), transparent 26%),
+        radial-gradient(circle at 62% 48%, rgba(26,102,55,.85), transparent 24%),
+        radial-gradient(circle at 28% 42%, rgba(109,82,49,.75), transparent 22%),
+        radial-gradient(circle, #2b6dd1 0%, #0a1d3b 75%);
+      box-shadow: inset -10px -12px 18px rgba(0,0,0,.35), 0 0 30px rgba(59,143,255,.55);
+    }
+
+    /* ♂️ מאדים */
+    .mars { width: 40px; height: 40px; background:
+        radial-gradient(circle at 80% 20%, #fff 0 6%, transparent 7%),
+        radial-gradient(circle at 36% 58%, rgba(120,60,30,.55), transparent 28%),
+        radial-gradient(circle at 62% 42%, rgba(100,50,25,.55), transparent 26%),
+        radial-gradient(circle, #ff7043 0%, #b23c17 80%);
+      box-shadow: inset -8px -10px 16px rgba(60,20,10,.35), 0 0 26px rgba(255,87,34,.45);
+    }
+
+    /* ♃ צדק */
+    .jupiter { width: 112px; height: 112px; background:
+        repeating-linear-gradient( to right,
+          #d9b382 0 10px, #c69a6a 10px 20px, #b7895a 20px 30px,
+          #e6c79a 30px 40px, #c99b6b 40px 50px, #b07a49 50px 60px ),
+        radial-gradient(circle, #e6b577, #a56c3a 80%);
+      box-shadow: inset -16px -18px 22px rgba(80,50,20,.35), 0 0 50px rgba(240,210,139,.45);
+    }
+    .jupiter::after { content:""; position:absolute; width:32px; height:22px; left:18%; top:58%; background: radial-gradient(ellipse at center, rgba(210,70,40,.8), rgba(160,50,30,.55)); border-radius: 50%; filter: blur(.3px); opacity:.9; }
+
+    /* ♄ שבתאי */
+    .saturn { width: 92px; height: 92px; background:
+        repeating-linear-gradient(to right,
+          #f3e2a9 0 10px, #d8c288 10px 18px, #c9b174 18px 26px,
+          #efdfab 26px 34px, #d0ba80 34px 42px),
+        radial-gradient(circle, #f3e2a9, #c9b174 80%);
+      box-shadow: inset -14px -16px 20px rgba(80,60,30,.32), 0 0 50px rgba(245,232,184,.5);
+      z-index: 1;
+    }
+    .saturn::before, .saturn::after { content: ""; position: absolute; left: -46px; width: 190px; height: 26px; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,255,255,.75), rgba(210,190,140,.2)); border-radius: 50%; transform: rotateX(58deg); filter: blur(.6px); }
+    .saturn::before { top: 42%; z-index: 0; opacity: .7; }
+    .saturn::after  { top: 56%; z-index: 2; opacity: .5; }
+
+    /* ♅ אורנוס */
+    .uranus { width: 72px; height: 72px; background:
+        repeating-linear-gradient(to right, rgba(210,245,255,.3) 0 8px, rgba(160,230,255,.28) 8px 16px),
+        radial-gradient(circle, #aaf3ff, #66d0ff 80%);
+      box-shadow: inset -10px -12px 16px rgba(20,40,50,.25), 0 0 40px rgba(178,255,255,.55);
+    }
+
+    /* ♆ נפטון */
+    .neptune { width: 72px; height: 72px; background:
+        repeating-linear-gradient(to right, rgba(120,160,255,.28) 0 10px, rgba(40,80,200,.28) 10px 20px),
+        radial-gradient(circle, #3b4eff, #0015a3 80%);
+      box-shadow: inset -10px -12px 16px rgba(10,20,60,.35), 0 0 40px rgba(92,108,255,.55);
+    }
+    .neptune::after { content:""; position:absolute; width:16px; height:12px; left:62%; top:58%; background: radial-gradient(ellipse at center, rgba(20,30,90,.7), rgba(0,10,60,.4)); border-radius:50%; filter: blur(.4px); opacity:.85; }
+
+    /* ===== מובייל ===== */
+    @media (max-width: 900px) {
+      html, body { overflow: hidden; }
+      .app { grid-template-columns: 1fr; grid-template-rows: 46% 54%; }
+      aside { grid-row: 2; }
+      .controls { gap: 12px; }
+      .btn { padding: 12px 14px; font-size: 16px; border-radius: 14px; }
+      .universe { gap: 28px; }
+      .body .label { font-size: 13px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+    /* === Bottom Sheet למובייל (חלון מידע נפתח מלמטה) === */
+    .sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:30}
+    .sheet{position:fixed;left:0;right:0;bottom:0;height:min(64vh,520px);background:#0c1117;border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:0 -8px 24px rgba(0,0,0,.35);transform:translateY(110%);transition:transform .28s ease;z-index:31;display:flex;flex-direction:column}
+    .sheet-handle{align-self:center;width:56px;height:5px;border-radius:999px;background:#334154;margin:10px 0}
+    .sheet-header{padding:0 16px 8px 16px;font-weight:700}
+    .sheet-body{padding:0 16px 16px 16px;overflow:auto;font-size:16px;line-height:1.7}
+    .sheet-close{position:absolute;left:12px;top:8px;background:transparent;border:0;color:#bcd;font-size:22px}
+    .sheet-open .sheet{transform:translateY(0)}
+    .sheet-open .sheet-backdrop{opacity:1;pointer-events:auto}
+
+    /* הסתרת כרטיס הצד במובייל, משתמשים ב-sheet */
+    @media (max-width: 900px){
+      .card{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="title">🚀 חללית במערכת השמש</div>
+      <div class="controls">
+        <button class="btn" id="btnLeft">⬅︎ הקודם</button>
+        <button class="btn" id="btnRight">הבא ➡︎</button>
+      </div>
+      <div class="card">
+        <h3 id="infoTitle">בחרו כוכב</h3>
+        <div id="infoText" class="info-text"></div>
+      </div>
+    </aside>
+
+    <div class="universe-wrap" id="wrap">
+      <div class="universe" id="universe">
+        <button class="body sun" data-name="השמש"><div class="label">השמש</div></button>
+        <button class="body mercury" data-name="כוכב חמה"><div class="label">כוכב חמה</div></button>
+        <button class="body venus" data-name="נוגה"><div class="label">נוגה</div></button>
+        <button class="body earth" data-name="כדור הארץ"><div class="label">כדור הארץ</div></button>
+        <button class="body mars" data-name="מאדים"><div class="label">מאדים</div></button>
+        <button class="body jupiter" data-name="צדק"><div class="label">צדק</div></button>
+        <button class="body saturn" data-name="שבתאי"><div class="label">שבתאי</div></button>
+        <button class="body uranus" data-name="אורנוס"><div class="label">אורנוס</div></button>
+        <button class="body neptune" data-name="נפטון"><div class="label">נפטון</div></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const texts = {
+        "השמש": `
+<b>השמש</b><br>
+כוכב האם שלנו שמרכיב כ־99.8% ממסת מערכת השמש. ליבת השמש מבצעת היתוך מימן להליום ומשחררת אנרגיה אדירה שמגיעה אלינו כאור וחום. זמן הגעת האור מן השמש לכדור הארץ הוא כ־8 דקות ו־20 שניות. קוטרה ~1,392,000 ק"מ, טמפרטורת פני השטח ~5,500°C והליבה חמה במיליוני מעלות.
+`,
+        "כוכב חמה": `
+<b>כוכב חמה (מרקורי)</b><br>
+הקרוב ביותר לשמש והקטן מבין כוכבי הלכת. כמעט ללא אטמוספירה, ולכן הבדלי הטמפרטורות קיצוניים: בשמש עד ~430°C ובלילה עד ~180-°C. שנת מרקורי קצרה (כ־88 ימים), וסיבוב עצמי איטי (כ־59 ימים), כך שיום שמשי אחד ארוך במיוחד. פניו זרועים מכתשי פגיעה רבים.
+`,
+        "נוגה": `
+<b>נוגה (ונוס)</b><br>
+דומה בגודלו לכדור הארץ אך שונה מאוד בתנאים: אטמוספירה סמיכה מפחמן דו־חמצני וענני חומצה גופרתית יוצרים אפקט חממה קיצוני — טמפרטורה ממוצעת ~465°C. מסתובב לאחור (סיבוב רטרוגרדי) ובאיטיות רבה, כך שיום בנוגה ארוך משנה.
+`,
+        "כדור הארץ": `
+<b>כדור הארץ</b><br>
+כ־71% מפני השטח מכוסים מים. האטמוספירה עשירה בחנקן וחמצן ומאפשרת קיום חיים. למגנטוספירה תפקיד מרכזי בהגנה מקרינה ורוחות שמש. לוויין טבעי יחיד — הירח — משפיע על הגאות והשפל וייצב את ציר הסיבוב.
+`,
+        "מאדים": `
+<b>מאדים</b><br>
+אדמדם בשל תחמוצות ברזל. אטמוספירה דלילה (בעיקר CO₂). מאכלס את אולימפוס מונס — ההר הגבוה במערכת, ואת שבר העמקים העצום ואלס מרינריס. שני ירחים קטנים — פובוס ודימוס. עדויות מצביעות על מים זורמים בעבר, וכיום על קרח.
+`,
+        "צדק": `
+<b>צדק</b><br>
+הגדול בכוכבי הלכת, ענק גזי בעל פסים צבעוניים וסופות עזות, הבולטת שבהן היא ה"כתם האדום הגדול" — סערה שנמשכת מאות שנים. בעל מגנטוספרה חזקה במיוחד ועשרות ירחים, ביניהם ארבעת ירחי הגליליאו: איו, אירופה, גנימד וקליסטו.
+`,
+        "שבתאי": `
+<b>שבתאי</b><br>
+ענק גזי מרהיב המוקף מערכת טבעות ענק עשויות קרח ואבק. צפיפותו נמוכה עד כדי כך שאם היה "אוקיינוס" עצום — היה צף. ירחים מעניינים: <i>טיטאן</i> עם אטמוספירה עבה ואגמי מתאן, ו<i>אנקלדוס</i> שפולט סילוני קרח.
+`,
+        "אורנוס": `
+<b>אורנוס</b><br>
+תכול־קר בשל מתאן באטמוספירה. נטיית ציר קיצונית (~98°) גורמת לכך שהוא "שוכב על צידו" — עונות נמשכות כ־20 שנה כל אחת. יש לו מערכת טבעות דקה ומספר ירחים כהים.
+`,
+        "נפטון": `
+<b>נפטון</b><br>
+הרחוק ביותר מן השמש. רוחותיו מהמהירות במערכת (עד מעל 2,000 קמ"ש). משלים הקפה סביב השמש בכ־165 שנים. ירחו הגדול טריטון נע במסלול נגדי (רטרוגרדי) ועשוי להיות גרם שמיים שנלכד.
+`
+      };
+
+      const bodies = Array.from(document.querySelectorAll('.body'));
+      const infoTitle = document.getElementById('infoTitle');
+      const infoText  = document.getElementById('infoText');
+      const wrap      = document.getElementById('wrap');
+      const uni       = document.getElementById('universe');
+
+      let index = 0;
+      const showInfo = (i)=>{
+        if (!bodies.length) return;
+        i = (i + bodies.length) % bodies.length;
+        const el = bodies[i];
+        const name = el?.dataset?.name || '';
+        infoTitle.textContent = name || '—';
+        infoText.innerHTML = texts[name] || 'אין מידע.';
+        // במובייל פותח חלון תחתון עם ההסבר
+        if (window.matchMedia('(max-width: 900px)').matches) {
+          if (typeof openSheet === 'function') openSheet(name, infoText.innerHTML);
+        }
+        bodies.forEach(b=> b.style.outline = 'none');
+        if (el) el.style.outline = '2px solid var(--acc)';
+        index = i;
+      };
+
+      // ניווט כפתורים + מקלדת
+      const prev = ()=> showInfo(index - 1);
+      const next = ()=> showInfo(index + 1);
+      document.getElementById('btnLeft').addEventListener('click', prev);
+      document.getElementById('btnRight').addEventListener('click', next);
+      window.addEventListener('keydown', (e)=>{
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'ArrowRight'){ e.preventDefault(); next(); }
+      });
+
+      bodies.forEach((b,i)=> b.addEventListener('click', ()=> showInfo(i)) );
+
+      // התאמה אוטומטית לכל המסך (גם מובייל)
+      const fitAll = ()=>{
+        if (!wrap || !uni) return;
+        // חישוב מדויק לפי רנדר בפועל
+        const rects = bodies.map(el=> el.getBoundingClientRect());
+        const totalBodiesWidth = rects.reduce((s,r)=> s + r.width, 0);
+        const gapPx = parseInt(getComputedStyle(uni).gap || '60', 10) || 60;
+        const totalGaps = gapPx * Math.max(0, bodies.length - 1);
+        const totalWidth = totalBodiesWidth + totalGaps;
+
+        const availW = wrap.clientWidth - 24; 
+        const maxH   = Math.max(...rects.map(r=> r.height));
+        const availH = wrap.clientHeight - 24;
+
+        const scaleW = Math.min(1, availW / Math.max(1,totalWidth));
+        const scaleH = Math.min(1, availH / Math.max(1,maxH));
+        const scale  = Math.min(scaleW, scaleH);
+        uni.style.transform = `scale(${scale})`;
+      };
+
+      // סווייפ במובייל
+      let touchStartX = null;
+      wrap.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length) touchStartX = e.touches[0].clientX;
+      }, {passive:true});
+      wrap.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : touchStartX;
+        const dx = endX - touchStartX;
+        const SWIPE = 30;
+        if (dx > SWIPE) prev();
+        else if (dx < -SWIPE) next();
+        touchStartX = null;
+      }, {passive:true});
+
+      // התחלה
+      const start = ()=>{ showInfo(bodies.length - 1); fitAll(); };
+      window.addEventListener('resize', fitAll);
+      window.addEventListener('orientationchange', fitAll);
+      // להבטיח שה-DOM מוכן
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+      else start();
+    })();
+  </script>
+  
+  <!-- Bottom Sheet markup -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-handle" id="sheetDrag"></div>
+    <button class="sheet-close" id="sheetClose" aria-label="סגירה">✕</button>
+    <div class="sheet-header" id="sheetTitle">פרטים</div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+
+  <script>
+    // לוגיקת ה-Sheet (נפרדת מהמשחק)
+    const sheet = document.getElementById('sheet');
+    const sheetBackdrop = document.getElementById('sheetBackdrop');
+    const sheetBody = document.getElementById('sheetBody');
+    const sheetTitle = document.getElementById('sheetTitle');
+    const sheetClose = document.getElementById('sheetClose');
+
+    function openSheet(title, html){
+      sheetTitle.textContent = title || 'פרטים';
+      sheetBody.innerHTML = html || '';
+      document.documentElement.classList.add('sheet-open');
+    }
+    function closeSheet(){ document.documentElement.classList.remove('sheet-open'); }
+
+    sheetBackdrop?.addEventListener('click', closeSheet);
+    sheetClose?.addEventListener('click', closeSheet);
+
+    // גרירת הסדין לסגירה במובייל
+    (function(){
+      let startY=null, lastY=null;
+      const drag = document.getElementById('sheetDrag');
+      const onStart = y => { startY=y; lastY=y; };
+      const onMove  = y => { if(startY==null)return; lastY=y; const dy=Math.max(0,y-startY); sheet.style.transform=`translateY(${Math.min(dy, window.innerHeight*0.7)}px)`; };
+      const onEnd   = () => { if(startY==null)return; const dy=Math.max(0,lastY-startY); if(dy>80) closeSheet(); sheet.style.transform=''; startY=null; };
+      drag?.addEventListener('touchstart', e=>onStart(e.touches[0].clientY), {passive:true});
+      drag?.addEventListener('touchmove',  e=>onMove(e.touches[0].clientY),  {passive:true});
+      drag?.addEventListener('touchend',   onEnd, {passive:true});
+    })();
+  </script>
+</body>
+</html>
